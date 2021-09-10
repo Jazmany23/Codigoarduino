@@ -1,0 +1,134 @@
+Codigo de Prototipo
+#include <DHT.h>
+#include <LiquidCrystal_I2C.h>
+#define DHTPIN A1
+#define sensor_suelo A0
+#define sensor_luz A3
+#define bomba 5
+
+
+int contador = 0;
+int valor_humedad = 0;
+int valor_luz = 0;
+DHT dht(DHTPIN, DHT11);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+
+void setup() {
+  pinMode(bomba, OUTPUT);
+  lcd.init();
+  lcd.backlight();
+  dht.begin();
+  lcd.setCursor(0, 0);
+  lcd.print("Iniciando......");
+  delay(1000);
+  lcd.clear();
+}
+
+void loop() {
+  contador = 0;
+
+  while (contador <= 50) {
+    int h = dht.readHumidity();// Lee la humedad
+    int t = dht.readTemperature(); //Lee la temperatura
+    lcd.setCursor(0, 0);
+    lcd.print("temp:");
+    lcd.print(t);
+    lcd.print((char)223);
+    lcd.print("C");
+    lcd.setCursor(0, 1);
+    lcd.print("hum:");
+    lcd.print(h);
+    lcd.print("%");
+    delay(100);
+    contador = contador + 1;
+  }
+
+  contador = 0;
+  lcd.clear();
+  while (contador <= 25) {
+    valor_humedad = map(analogRead(sensor_suelo), 0, 1023, 100, 0);
+    valor_luz = analogRead(sensor_luz);
+    while (valor_humedad <= 35 and valor_luz >= 1000) {
+      lcd.setCursor(0, 0);
+      lcd.print("suelo seco");
+      lcd.setCursor(0, 1);
+      lcd.print("inicio riego.....");
+      digitalWrite(bomba, 1);
+      delay(1000);
+      valor_humedad = map(analogRead(sensor_suelo), 0, 1023, 100, 0);
+      valor_luz = analogRead(sensor_luz);
+    }
+
+    digitalWrite(bomba, 0);
+    lcd.setCursor(0, 0);
+    lcd.print("h.suelo:");
+    lcd.print(valor_humedad);
+    lcd.print("%");
+    lcd.setCursor(0, 1);
+    lcd.print("Luz: ");
+    lcd.print(valor_luz);
+    lcd.print("lums");
+    delay(500);
+    contador = contador + 1;
+  }
+  contador = 0;
+  lcd.clear();
+}
+
+
+
+
+
+
+
+
+
+
+
+void sensor_dht() {
+  int h = dht.readHumidity();// Lee la humedad
+  int t = dht.readTemperature(); //Lee la temperatura
+  lcd.setCursor(0, 0);
+  lcd.print("temp:");
+  lcd.print(t);
+  lcd.print((char)223);
+  lcd.print("C");
+  lcd.setCursor(0, 1);
+  lcd.print("hum:");
+  lcd.print(h);
+  lcd.print("%");
+  delay(100);
+}
+
+void sensor_humedad() {
+
+  valor_humedad = map(analogRead(sensor_suelo), 0, 1023, 100, 0);
+  valor_luz = analogRead(sensor_luz);
+  while (valor_humedad <= 35 and valor_luz >= 1000) {
+    lcd.setCursor(0, 0);
+    lcd.print("suelo seco");
+    lcd.setCursor(0, 1);
+    lcd.print("inicio riego.....");
+    digitalWrite(bomba, 1);
+    delay(1000);
+    valor_humedad = map(analogRead(sensor_suelo), 0, 1023, 100, 0);
+    valor_luz = analogRead(sensor_luz);
+  }
+
+  digitalWrite(bomba, 0);
+  lcd.setCursor(0, 0);
+  lcd.print("h.suelo:");
+  lcd.print(valor_humedad);
+  lcd.print("%");
+  lcd.setCursor(0, 1);
+  lcd.print("Luz: ");
+  lcd.print(valor_luz);
+  lcd.print("lums");
+  delay(500);
+
+}
+
+
+
+
